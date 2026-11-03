@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pizza Factory Simulator</title>
+  <link rel="icon" href="/static/favicon.ico?v=2" sizes="16x16 32x32 48x48">
+  <link rel="icon" href="/static/favicon.svg?v=2" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/static/apple-touch-icon.png?v=2">
+  <link rel="stylesheet" href="/static/theme.css">
+  <link rel="stylesheet" href="/static/controls.css">
+  <link rel="stylesheet" href="/static/inspector.css">
+  <link rel="stylesheet" href="/static/compare.css">
+  <script type="importmap">{"imports":{"three":"/static/vendor/three.module.js"}}</script>
+</head>
+<body>
+  <div id="scene"></div>
+
+  <div id="hud">
+    <header id="topbar">
+      <span id="brand">Pizza Factory</span>
+      <input id="search" type="search" placeholder="Search lot or station ( / )" aria-label="Search lot or station" autocomplete="off">
+      <div id="rule-switch" role="group" aria-label="Dispatch rule" title="Rule applies to the next release. Priority first (smaller number first), then the selected rule.">
+        <button type="button" data-rule="edd" class="active" title="EDD - earliest due date first">EDD</button>
+        <button type="button" data-rule="fifo" title="FIFO - first in, first out">FIFO</button>
+        <button type="button" data-rule="spt" title="SPT - shortest processing time at the station first">SPT</button>
+      </div>
+      <div id="speed-switch" role="group" aria-label="Simulation speed" title="模擬速度(KPI 以模擬秒計算)">
+        <button type="button" data-scale="1" class="active" aria-pressed="true">1×</button>
+        <button type="button" data-scale="2" aria-pressed="false">2×</button>
+        <button type="button" data-scale="4" aria-pressed="false">4×</button>
+        <button type="button" data-scale="8" aria-pressed="false">8×</button>
+      </div>
+      <label class="rate-group" for="rate-slider">
+        <span>Arrival Rate</span>
+        <input id="rate-slider" type="range" min="1" max="12" step="1" value="2">
+        <span id="rate-value">2 pizzas/min</span>
+      </label>
+      <button id="btn-start" class="btn primary" type="button">Start</button>
+      <button id="btn-reset" class="btn destructive" type="button" disabled>Reset</button>
+      <button id="btn-order" class="btn" type="button">+ Lot</button>
+      <button id="btn-compare" class="btn" type="button">Compare</button>
+      <span class="topbar-spacer"></span>
+      <span id="live-badge" class="badge idle">Idle</span>
+      <span id="run-id"></span>
+      <span id="conn-state"></span>
+    </header>
+
+    <div id="hud-left">
+      <section id="kpi-row" aria-label="Key performance indicators">
+        <div id="kpi-throughput" class="kpi" tabindex="0" aria-describedby="kpi-trend-throughput" title="Throughput (pizzas/min)">
+          <span class="kpi-label">Throughput <span class="kpi-unit">pizzas/min</span></span>
+          <span class="kpi-value">—</span>
+          <span class="kpi-sub">warming up…</span>
+        </div>
+        <div id="kpi-wip" class="kpi" tabindex="0" aria-describedby="kpi-trend-wip" title="WIP (pizzas)">
+          <span class="kpi-label">WIP <span class="kpi-unit">pizzas</span></span>
+          <span class="kpi-value">—</span>
+          <span class="kpi-sub">warming up…</span>
+        </div>
+        <div id="kpi-cycle" class="kpi" tabindex="0" aria-describedby="kpi-trend-cycle" title="Cycle time (min/pizza)">
+          <span class="kpi-label">Cycle time <span class="kpi-unit">min/pizza</span></span>
+          <span class="kpi-value">—</span>
+          <span class="kpi-sub">warming up…</span>
+        </div>
+      </section>
+      <div id="kpi-trend-throughput" class="kpi-trend hidden" role="tooltip">
+        <div class="chart-label">Throughput (pizzas/min)</div>
+        <canvas id="chart-throughput"></canvas>
+      </div>
+      <div id="kpi-trend-wip" class="kpi-trend hidden" role="tooltip">
+        <div class="chart-label">WIP (now / avg, pizzas)</div>
+        <canvas id="chart-wip"></canvas>
+      </div>
+      <div id="kpi-trend-cycle" class="kpi-trend hidden" role="tooltip">
+        <div class="chart-label">Cycle time (mean / p95, min/pizza)</div>
+        <canvas id="chart-cycle"></canvas>
+      </div>
+      <div id="little-chip" class="warming" title="Little's Law: L = λ·W">
+        <span class="little-main">warming up…</span>
+        <span class="little-theory"></span>
+      </div>
+      <!-- Due chip hidden for now (2026-10-26); hud.js still updates it, remove "hidden" to show it again. -->
+      <div id="due-chip" class="warming hidden" title="Due-date KPIs. Late = completed after due time. Scrap lots are excluded.">
+        <span class="due-main">Late - warming up...</span>
+        <span class="due-theory"></span>
+      </div>
+    </div>
+
+    <aside id="inspector" class="hidden" aria-label="Inspector">
+      <button id="inspector-close" type="button" aria-label="Close" title="Close">✕</button>
+      <div id="inspector-body"></div>
+    </aside>
+
+    <div id="tool-strip" role="toolbar" aria-label="Camera tools">
+      <button id="tool-zoom-in" class="icon-btn" type="button" aria-label="Zoom in" title="Zoom in">＋</button>
+      <button id="tool-zoom-out" class="icon-btn" type="button" aria-label="Zoom out" title="Zoom out">－</button>
+      <button id="tool-rotate-left" class="icon-btn" type="button" aria-label="Rotate left" title="Rotate left">⟲</button>
+      <button id="tool-rotate-right" class="icon-btn" type="button" aria-label="Rotate right" title="Rotate right">⟳</button>
+      <button id="tool-home" class="icon-btn" type="button" aria-label="Reset view" title="Reset view">⌂</button>
+    </div>
+
+    <section id="feed" aria-label="Event feed">Waiting for station events…</section>
+
+    <section id="tabs-wrap">
+      <div id="tabs-head">
+        <div id="tabs" role="tablist">
+          <button type="button" role="tab" data-tab="stations" class="active" aria-selected="true">Stations</button>
+          <button type="button" role="tab" data-tab="lots" aria-selected="false">Lots</button>
+        </div>
+        <button id="tabs-toggle" class="icon-btn" type="button" aria-expanded="true"
+                aria-controls="tab-stations tab-lots" aria-label="Collapse panel"
+                title="Collapse panel">▾</button>
+      </div>
+      <div id="tab-stations" class="tab-panel" role="tabpanel"></div>
+      <div id="tab-lots" class="tab-panel hidden" role="tabpanel">No lots in progress</div>
+    </section>
+
+    <div id="empty-run">
+      <h2>No active run</h2>
+      <p>Press Start to begin. Choose a seed, arrival rate and product mix, then watch lots flow through the seven stations.</p>
+      <button id="empty-start" class="btn primary" type="button">Start</button>
+    </div>
+
+    <div id="modal-backdrop" class="hidden"></div>
+
+    <div id="start-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="start-title">
+      <h2 id="start-title">Start</h2>
+      <button id="start-close" class="icon-btn" type="button" aria-label="Close" title="Close">✕</button>
+      <form id="start-form">
+        <label for="start-seed">Seed (blank = random)</label>
+        <input id="start-seed" type="number" step="1">
+        <div class="due-row">
+          <label for="start-rate">Arrival rate</label>
+          <output id="start-rate-value" for="start-rate">2 pizzas/min</output>
+        </div>
+        <input id="start-rate" type="range" min="1" max="12" step="1" value="2">
+        <label>Product weights</label>
+        <div class="weight-row"><span>margherita</span><input class="weight-input" data-product="margherita" type="number" min="0" step="1" value="1" aria-label="Margherita weight"></div>
+        <div class="weight-row"><span>pepperoni</span><input class="weight-input" data-product="pepperoni" type="number" min="0" step="1" value="1" aria-label="Pepperoni weight"></div>
+        <div class="weight-row"><span>veggie</span><input class="weight-input" data-product="veggie" type="number" min="0" step="1" value="1" aria-label="Veggie weight"></div>
+        <label class="check-row"><input id="start-random-breakdowns" type="checkbox"> Random breakdowns (MTBF/MTTR)</label>
+        <p class="field-help">Off keeps a clean baseline for theory checks. Manual Break always works.</p>
+        <div class="modal-actions">
+          <button type="submit" class="btn primary">Start</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="reset-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="reset-title">
+      <h2 id="reset-title">Reset</h2>
+      <p>Start a new run? This creates a new run ID and clears queues and live charts. Past events stay in Kafka for replay.</p>
+      <div class="modal-actions">
+        <button id="reset-cancel" class="btn" type="button">Keep running</button>
+        <button id="reset-confirm" class="btn destructive" type="button">Reset</button>
+      </div>
+    </div>
+
+    <div id="order-popover" class="hidden" role="dialog" aria-label="Manual lot">
+      <form id="order-form">
+        <label for="order-product">Product</label>
+        <select id="order-product">
+          <option value="margherita">margherita</option>
+          <option value="pepperoni">pepperoni</option>
+          <option value="veggie">veggie</option>
+        </select>
+        <label for="order-qty">Quantity</label>
+        <input id="order-qty" type="number" min="1" max="99" step="1" value="1">
+        <div class="due-row">
+          <label for="order-due">Due</label>
+          <span id="order-due-badge" class="chip auto" aria-live="polite">Auto</span>
+        </div>
+        <input id="order-due" type="text" placeholder="yyyy/MM/dd HH:mm" autocomplete="off" spellcheck="false">
+        <div class="due-row">
+          <button type="button" id="order-due-reset" class="link-btn hidden">Reset to auto</button>
+        </div>
+        <p id="order-eta-readout" class="field-help"></p>
+        <div class="due-row">
+          <label for="order-buffer">Buffer</label>
+          <input id="order-buffer" type="number" min="0.5" max="3" step="0.1" value="1.5">
+        </div>
+        <p id="order-buffer-help" class="field-help">Due = now + estimate x buffer</p>
+        <div class="due-row">
+          <label for="order-priority">Priority</label>
+          <output id="order-priority-value" for="order-priority">50</output>
+        </div>
+        <input id="order-priority" type="range" min="1" max="99" step="1" value="50">
+        <p class="field-help">1 = most urgent, 99 = least urgent</p>
+        <div class="modal-actions">
+          <button type="submit" class="btn primary">Place lot</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="compare-panel" class="card hidden" role="dialog" aria-labelledby="compare-heading" aria-hidden="true">
+      <button id="compare-close" class="icon-btn" type="button" aria-label="Close" title="Close">✕</button>
+      <h2 id="compare-heading" tabindex="-1">Compare dispatch rules</h2>
+      <p class="field-help">Runs FIFO, EDD and SPT on the same seeded lots and breakdown sequence. Each round uses a fresh run.</p>
+
+      <div id="compare-banner" class="hidden" role="alert"></div>
+
+      <form id="compare-setup">
+        <div class="compare-grid">
+          <div>
+            <label for="compare-seed">Seed (blank = random)</label>
+            <input id="compare-seed" type="number" step="1">
+          </div>
+          <div>
+            <label for="compare-n">Lots per round (N)</label>
+            <input id="compare-n" type="number" min="5" max="99" step="1" value="30">
+          </div>
+          <div>
+            <label for="compare-rate">Arrival rate (pizzas/min)</label>
+            <input id="compare-rate" type="number" min="1" max="12" step="1" value="4">
+          </div>
+          <div>
+            <label for="compare-k">Due tightness (k)</label>
+            <input id="compare-k" type="number" min="1.0" step="0.1" value="1.5">
+          </div>
+        </div>
+        <p class="field-help">Lower = tighter due dates, more late lots</p>
+        <label class="check-row"><input id="compare-random-breakdowns" type="checkbox" checked> Random breakdowns (MTBF/MTTR)</label>
+        <label>Product weights</label>
+        <div class="compare-weights">
+          <input class="weight-input" data-product="margherita" type="number" min="0" step="1" value="1" aria-label="Margherita weight">
+          <input class="weight-input" data-product="pepperoni" type="number" min="0" step="1" value="1" aria-label="Pepperoni weight">
+          <input class="weight-input" data-product="veggie" type="number" min="0" step="1" value="1" aria-label="Veggie weight">
+        </div>
+        <div class="modal-actions">
+          <button id="compare-start" type="submit" class="btn primary">Start comparison</button>
+        </div>
+      </form>
+
+      <p id="compare-recap" class="field-help hidden"></p>
+
+      <ol id="compare-stepper" class="round-stepper hidden" aria-label="Comparison rounds"></ol>
+      <p id="compare-roundline" class="hidden"></p>
+
+      <div id="compare-controls" class="modal-actions hidden">
+        <button id="compare-end" class="btn" type="button">End round</button>
+        <button id="compare-next" class="btn primary" type="button">Next round</button>
+        <button id="compare-cancel" class="btn" type="button">Cancel comparison</button>
+      </div>
+
+      <div id="compare-empty">
+        <h3>No comparison results yet</h3>
+        <p>Start a comparison to run FIFO, EDD and SPT on the same lots. Results appear here after each round.</p>
+      </div>
+
+      <table id="compare-table" class="compare-table hidden">
+        <thead>
+          <tr>
+            <th scope="col">Rule</th>
+            <th scope="col">Lots</th>
+            <th scope="col">Mean cycle (s/pizza)</th>
+            <th scope="col">Mean tardiness (s)</th>
+            <th scope="col">Late %</th>
+            <th scope="col">Makespan (s)</th>
+            <th scope="col"><a id="compare-export" class="btn" href="/api/comparison.csv">Export CSV</a></th>
+          </tr>
+        </thead>
+        <tbody id="compare-table-body"></tbody>
+      </table>
+      <p id="compare-failed-note" class="hidden"></p>
+
+      <div id="compare-scoreboard" class="scoreboard hidden"></div>
+
+      <p id="compare-footer" class="hidden"></p>
+
+      <section id="compare-history">
+        <div class="panel-head">
+          <button id="compare-history-toggle" type="button" aria-expanded="true" aria-controls="compare-history-body">History</button>
+        </div>
+        <div id="compare-history-body">
+          <div id="compare-history-list"></div>
+          <div id="compare-history-empty" class="hidden">
+            <p class="empty-copy">No past runs</p>
+            <p class="empty-copy">Runs appear here after you start one. You can replay any run to verify its KPIs.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="compare-cancel-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="compare-cancel-title">
+      <h2 id="compare-cancel-title">Cancel comparison</h2>
+      <p>Stop the comparison and keep finished rounds? The running round is discarded from the table. Past events stay in Kafka.</p>
+      <div class="modal-actions">
+        <button id="compare-cancel-keep" class="btn" type="button">Keep running</button>
+        <button id="compare-cancel-confirm" class="btn destructive" type="button">Cancel comparison</button>
+      </div>
+    </div>
+
+    <div id="toasts" aria-live="polite"></div>
+    <div id="error-banner" class="hidden" role="alert"></div>
+  </div>
+
+  <script src="/static/vendor/chart.umd.min.js"></script>
+  <script type="module" src="/static/js/main.js"></script>
+</body>
+</html>

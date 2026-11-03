@@ -1,0 +1,6 @@
+station = "slice"
+
+[unit_time_s]
+margherita = 3.0
+pepperoni = 3.0
+veggie = 3.0

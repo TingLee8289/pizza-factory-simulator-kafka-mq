@@ -1,0 +1,189 @@
+# Pizza Factory Simulator - infra stack.
+# `docker compose down -v` is the explicit reset of broker data (D-18).
+x-line-env: &line-env
+  KAFKA_BOOTSTRAP: kafka:9092
+  RABBITMQ_URL: amqp://${RABBITMQ_USER:-pizza}:${RABBITMQ_PASS:-pizza}@rabbitmq:5672/
+  # Failure/heartbeat/stocker tuning. MTBF_S only takes effect when a run enables
+  # random_breakdowns (off by default, D-25). BANK_WAIT_THRESHOLD / REWORK_LIMITS are
+  # intentionally not set here (empty compose defaults would fail settings parsing).
+  MTBF_S: ${MTBF_S:-300}
+  MTTR_S: ${MTTR_S:-20}
+  HEARTBEAT_INTERVAL_S: ${HEARTBEAT_INTERVAL_S:-5}
+  STATION_QUEUE_LIMIT: ${STATION_QUEUE_LIMIT:-8}
+  BANK_AFTER_S: ${BANK_AFTER_S:-60}
+  # Recipe timing for SPT rule (Phase 7); optional - uses default recipes if unset.
+  RECIPES_DIR: ${RECIPES_DIR:-}
+
+x-station: &station
+  image: pizza-app:dev
+  command: ["python", "-m", "pizza.station"]
+  restart: unless-stopped
+  stop_grace_period: 90s
+  profiles: ["line"]
+  environment: *line-env
+  depends_on:
+    init:
+      condition: service_completed_successfully
+
+services:
+  kafka:
+    image: apache/kafka:4.2.2
+    hostname: kafka
+    ports:
+      - "127.0.0.1:9094:9094"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,EXTERNAL://:9094,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://127.0.0.1:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_SHARE_COORDINATOR_STATE_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_SHARE_COORDINATOR_STATE_TOPIC_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_HEAP_OPTS: -Xms512m -Xmx512m
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null 2>&1"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 30s
+
+  rabbitmq:
+    image: rabbitmq:4.2-management-alpine
+    hostname: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-pizza}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS:-pizza}
+    ports:
+      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+      - ./deploy/rabbitmq/90-pizza.conf:/etc/rabbitmq/conf.d/90-pizza.conf:ro
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 20s
+
+  kafka-ui:
+    image: ghcr.io/kafbat/kafka-ui:v1.5.0
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  # One-shot bootstrap: creates Kafka topics and RabbitMQ topology idempotently (D-13).
+  # Phase 2+ services must use `depends_on: init: condition: service_completed_successfully`
+  # and do a passive verify_* check of the topology at startup.
+  init:
+    build: .
+    image: pizza-app:dev
+    command: ["python", "-m", "pizza.common.bootstrap"]
+    restart: "no"
+    environment:
+      KAFKA_BOOTSTRAP: kafka:9092
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-pizza}:${RABBITMQ_PASS:-pizza}@rabbitmq:5672/
+    depends_on:
+      kafka:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  # Line services (D-20): `docker compose --profile line up -d` starts the full line.
+  # They sit under profile `line` so infra-only `docker compose up -d --wait` does not start them
+  # (otherwise stations would steal jobs from integration tests, Pitfall 6).
+  # stop_grace_period 90s exceeds the longest job (bake 15s x qty 3 = 45s) so SIGTERM lets it finish (D-14).
+  station-spin:
+    <<: *station
+    environment:
+      <<: *line-env
+      STATION_NAME: spin
+
+  station-sauce:
+    <<: *station
+    environment:
+      <<: *line-env
+      STATION_NAME: sauce
+
+  station-cheese:
+    <<: *station
+    environment:
+      <<: *line-env
+      STATION_NAME: cheese
+
+  station-toppings:
+    <<: *station
+    environment:
+      <<: *line-env
+      STATION_NAME: toppings
+
+  station-bake:
+    <<: *station
+    environment:
+      <<: *line-env
+      STATION_NAME: bake
+
+  station-slice:
+    <<: *station
+    environment:
+      <<: *line-env
+      STATION_NAME: slice
+
+  station-package:
+    <<: *station
+    environment:
+      <<: *line-env
+      STATION_NAME: package
+
+  generator:
+    <<: *station
+    command: ["python", "-m", "pizza.generator"]
+    stop_grace_period: 10s
+
+  scheduler:
+    <<: *station
+    command: ["python", "-m", "pizza.scheduler"]
+    stop_grace_period: 10s
+
+  kpi-service:
+    <<: *station
+    command: ["python", "-m", "pizza.kpi"]
+    stop_grace_period: 10s
+
+  dashboard:
+    <<: *station
+    command: ["python", "-m", "pizza.dashboard"]
+    stop_grace_period: 10s
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      <<: *line-env
+      RABBITMQ_MGMT_URL: http://rabbitmq:15672
+      RABBITMQ_MGMT_USER: ${RABBITMQ_USER:-pizza}
+      RABBITMQ_MGMT_PASS: ${RABBITMQ_PASS:-pizza}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 60s
+
+volumes:
+  kafka-data:
+  rabbitmq-data:

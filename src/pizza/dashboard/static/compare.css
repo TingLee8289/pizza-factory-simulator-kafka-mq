@@ -1,0 +1,79 @@
+/* compare.css - Compare panel, round stepper, results table, scoreboard and
+   History/Recompute styles (COMP-01..04). No new design tokens: only
+   var(--existing) references; reuses .card/.btn/.chip/.progress/.seg-group/
+   .modal/.field-help/.check-row/.empty-copy/.list-row from theme.css,
+   controls.css and inspector.css. */
+
+#compare-panel {
+  position: absolute;
+  top: 76px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 720px;
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
+  padding: var(--space-5);
+  z-index: 45;
+}
+#compare-panel h2 { margin: 0 0 var(--space-1); font-size: var(--text-heading); font-weight: var(--weight-semibold); line-height: 1.2; }
+#compare-panel h3 { margin: 0 0 var(--space-2); font-size: var(--text-heading); font-weight: var(--weight-semibold); line-height: 1.2; color: var(--color-text); }
+#compare-close { position: absolute; top: var(--space-2); right: var(--space-2); }
+#compare-banner { margin: var(--space-3) 0; font-size: var(--text-body); color: var(--color-warn); }
+
+.compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); margin-bottom: var(--space-2); }
+.compare-grid label { display: block; margin-bottom: var(--space-1); font-size: var(--text-label); font-weight: var(--weight-semibold); }
+.compare-grid input { width: 100%; height: 32px; padding: 0 var(--space-2); border: 1px solid var(--color-border); border-radius: var(--radius-sm); }
+.compare-weights { display: flex; gap: var(--space-2); margin-bottom: var(--space-3); }
+.compare-weights input { width: 72px; height: 32px; padding: 0 var(--space-2); border: 1px solid var(--color-border); border-radius: var(--radius-sm); }
+
+#compare-recap { margin: 0 0 var(--space-3); }
+
+.round-stepper { display: flex; align-items: center; gap: var(--space-2); list-style: none; margin: 0 0 var(--space-3); padding: 0; }
+.round-stepper .step-pill {
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--text-label);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-solid);
+}
+.round-stepper .step-pill.running { border-color: var(--color-accent); color: var(--color-accent); }
+.round-stepper .step-pill.done { color: var(--color-success); border-color: var(--color-success); }
+#compare-roundline { margin: 0 0 var(--space-3); font-size: var(--text-body); font-weight: var(--weight-regular); }
+
+#compare-controls { gap: var(--space-2); margin: 0 0 var(--space-4); justify-content: flex-end; }
+
+.compare-table { width: 100%; border-collapse: collapse; margin-bottom: var(--space-2); }
+.compare-table th, .compare-table td { height: 32px; padding: 0 var(--space-3); border-bottom: 1px solid var(--color-border); font-size: var(--text-body); font-weight: var(--weight-regular); text-align: right; }
+.compare-table th { font-size: var(--text-label); font-weight: var(--weight-semibold); color: var(--color-text-muted); }
+.compare-table th:first-child, .compare-table td:first-child { text-align: left; }
+.compare-table td.best { font-weight: var(--weight-semibold); color: var(--color-success); }
+#compare-failed-note, #compare-footer { margin: 0 0 var(--space-3); font-size: var(--text-label); font-weight: var(--weight-regular); color: var(--color-text-muted); }
+
+.scoreboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3); margin: 0 0 var(--space-4); }
+.scoreboard .score-card { padding: var(--space-3); text-align: center; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+.scoreboard .score-label { font-size: var(--text-label); font-weight: var(--weight-semibold); color: var(--color-text-muted); }
+.scoreboard .score-rule { font-size: var(--text-heading); font-weight: var(--weight-semibold); color: var(--color-success); }
+.scoreboard .score-value { font-size: var(--text-display); font-weight: var(--weight-semibold); }
+.scoreboard .score-sub { font-size: var(--text-label); font-weight: var(--weight-regular); color: var(--color-text-muted); }
+
+#compare-empty { padding: var(--space-4) 0; text-align: center; color: var(--color-text-muted); }
+
+#compare-history { margin-top: var(--space-4); border-top: 1px solid var(--color-border); padding-top: var(--space-3); }
+#compare-history-toggle { background: transparent; border: 0; font-size: var(--text-heading); font-weight: var(--weight-semibold); padding: 0; height: 32px; color: var(--color-text); }
+.compare-history-row { display: flex; align-items: center; gap: var(--space-2); min-height: 32px; padding: var(--space-1) var(--space-2); border-left: 3px solid transparent; border-radius: var(--radius-sm); }
+.compare-history-row.selected { background: rgba(47, 107, 255, 0.10); border-left-color: var(--color-accent); }
+.compare-recompute-card { margin: var(--space-2) 0 var(--space-3); padding: var(--space-3); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+.compare-recompute-card table { width: 100%; border-collapse: collapse; margin: var(--space-2) 0; }
+.compare-recompute-card th, .compare-recompute-card td { padding: var(--space-1) var(--space-2); font-size: var(--text-body); font-weight: var(--weight-regular); text-align: left; }
+.compare-recompute-card th { font-size: var(--text-label); font-weight: var(--weight-semibold); color: var(--color-text-muted); }
+.compare-recompute-card td.warn-text { color: var(--color-warn); }
+.compare-recompute-card p { margin: 0 0 var(--space-1); font-size: var(--text-label); font-weight: var(--weight-regular); color: var(--color-text-muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  #compare-panel, .round-stepper .step-pill { transition: none !important; }
+}

@@ -1,0 +1,61 @@
+/* controls.css - controls, panel and modal behaviour styles (plan 05-10). */
+
+/* --- Toasts --- */
+.toast {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface-solid);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+.toast.error { border-color: var(--color-danger); color: var(--color-danger); }
+.toast-close { min-width: 36px; min-height: 36px; border: 0; background: transparent; color: inherit; }
+
+/* --- Rule switch and rate slider --- */
+#rule-switch button { min-height: 32px; padding: 0 var(--space-3); border: 0; background: transparent; }
+#rule-switch button.active { background: var(--color-accent); color: var(--color-primary-ink); }
+/* --- Simulation speed buttons (quick-et6): same segmented look as #rule-switch --- */
+#speed-switch { display: inline-flex; flex: 0 0 auto; border: 1px solid var(--color-border); border-radius: var(--radius-sm); overflow: hidden; }
+#speed-switch button {
+  min-height: 32px;
+  padding: 0 var(--space-2);
+  border: 0;
+  background: var(--color-surface-solid);
+  font-size: var(--text-label);
+  font-weight: var(--weight-semibold);
+}
+#speed-switch button.active { background: var(--color-accent); color: var(--color-primary-ink); }
+#rate-slider { accent-color: var(--color-accent); }
+#rate-slider:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* --- Due-date chip (Phase 7, KPI-07): same glass-pill shape and tone classes
+   as #little-chip, declared here since theme.css is out of this plan's scope.
+   No new tokens - reuses the same custom properties as #little-chip. --- */
+#due-chip {
+  height: 32px;
+  padding: 0 var(--space-3);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-label);
+  font-weight: var(--weight-semibold);
+  line-height: 1.4;
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  -webkit-backdrop-filter: blur(var(--blur));
+  backdrop-filter: blur(var(--blur));
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+}
+#due-chip .due-theory { font-weight: var(--weight-regular); color: var(--color-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#due-chip.ok .due-main { color: var(--color-success); }
+#due-chip.warn .due-main { color: var(--color-warn); }
+#due-chip.warming .due-main { color: var(--color-text-muted); }
+@media (max-width: 1279px) {
+  #due-chip .due-theory { display: none; }
+}
+
+/* --- Focus ring and hit targets --- */
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.icon-btn { min-width: 36px; min-height: 36px; }

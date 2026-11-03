@@ -1,0 +1,6 @@
+station = "spin"
+
+[unit_time_s]
+margherita = 4.0
+pepperoni = 4.0
+veggie = 4.0

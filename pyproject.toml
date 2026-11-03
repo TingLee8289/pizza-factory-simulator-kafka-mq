@@ -1,0 +1,46 @@
+[project]
+name = "pizza-factory-simulator-kafka-mq"
+version = "0.1.0"
+description = "Pizza Factory Simulator: Kafka event stream + RabbitMQ command queue"
+requires-python = ">=3.12"
+dependencies = [
+    "confluent-kafka>=2.16,<3",
+    "aio-pika>=10.1,<11",
+    "pydantic>=2.13,<3",
+    "pydantic-settings>=2.15,<3",
+    "orjson>=3.13,<4",
+    "structlog>=26.1",
+    "fastapi>=0.143,<0.144",
+    "uvicorn[standard]>=0.54,<0.55",
+    "httpx>=0.28,<0.29",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1",
+    "pytest-asyncio>=1.4",
+    "ruff>=0.16",
+    "playwright>=1.63",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pizza"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+markers = [
+    "integration: needs running docker compose stack",
+    "chaos: kills containers with docker; run explicitly with -m chaos",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

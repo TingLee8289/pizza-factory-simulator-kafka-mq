@@ -1,0 +1,45 @@
+/* Variant A — "Light Digital Twin" (closest to the WareTrack reference video) */
+:root {
+  /* Colors */
+  --color-bg: #e4ecf8;
+  --color-surface: rgba(255, 255, 255, 0.78);
+  --color-surface-solid: #ffffff;
+  --color-border: rgba(30, 50, 90, 0.10);
+  --color-text: #16213a;
+  --color-text-muted: #6a7794;
+  --color-primary: #2f6bff;
+  --color-primary-ink: #ffffff;
+  --color-accent: #2f6bff;
+  --color-danger: #e5484d;
+  --color-success: #12a46a;
+  --color-warn: #e08a00;
+
+  /* Typography */
+  --font-sans: 'Inter', 'Noto Sans TC', system-ui, sans-serif;
+  --font-num: 'Inter', 'Noto Sans TC', system-ui, sans-serif;
+  --title-transform: none;
+  --title-weight: 650;
+  --text-xs: 0.72rem;
+  --text-sm: 0.82rem;
+  --text-base: 0.92rem;
+  --text-xl: 1.5rem;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+
+  /* Shapes */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-full: 9999px;
+  --border-width: 1px;
+
+  /* Glass / elevation */
+  --blur: 14px;
+  --shadow-md: 0 8px 28px rgba(40, 70, 130, 0.14);
+  --shadow-press: none;
+  --glow: none;
+}

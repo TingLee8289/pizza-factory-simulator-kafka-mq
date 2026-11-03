@@ -1,0 +1,188 @@
+/* inspector.css - inspector, lists and feed styles (plan 05-12). */
+#inspector {
+  background: var(--color-surface);
+  -webkit-backdrop-filter: blur(var(--blur));
+  backdrop-filter: blur(var(--blur));
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+#inspector-body { display: flex; flex-direction: column; gap: var(--space-2); }
+.insp-head { display: flex; align-items: center; gap: var(--space-3); padding-right: var(--space-6); }
+.insp-head .btn { padding: var(--space-1) var(--space-3); }
+.insp-title { margin: 0 0 var(--space-1); font-size: var(--text-heading); font-weight: var(--weight-semibold); line-height: 1.2; }
+.insp-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.insp-label { font-size: var(--text-label); font-weight: var(--weight-semibold); color: var(--color-text-muted); }
+.insp-value { font-weight: var(--weight-semibold); }
+.priority-edit { display: flex; flex-wrap: nowrap; align-items: center; gap: var(--space-2); min-width: 0; }
+.priority-slider-box { display: flex; flex-direction: column; flex: 1 1 auto; min-width: 0; }
+.priority-readout { text-align: center; font-weight: var(--weight-semibold); }
+.priority-slider { width: 100%; }
+.priority-edit .btn { flex: none; white-space: nowrap; }
+.insp-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-2); }
+.insp-actions select { height: 32px; padding: 0 var(--space-2); border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface); }
+.field-help { margin: 0; font-size: var(--text-label); font-weight: 400; color: var(--color-text-muted); }
+.check-row { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-label); font-weight: 400; color: var(--color-text-muted); }
+.modal .check-row input, #order-popover .check-row input { width: auto; height: auto; padding: 0; margin: 0; }
+#start-close { position: absolute; top: var(--space-2); right: var(--space-2); }
+.weight-row { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); }
+.weight-row span { flex: 1; font-size: var(--text-label); font-weight: var(--weight-semibold); }
+.weight-row .weight-input { width: 96px; }
+#order-popover .check-row { display: flex; align-items: center; gap: var(--space-2); }
+.chip.dashed { outline: 1px dashed var(--color-idle); outline-offset: -1px; }
+.insp-actions .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.insp-note { margin: 0; font-size: var(--text-label); color: var(--color-text-muted); }
+/* Lot inspector Note: timestamped lines for failures/rework, bank and pending hold. */
+.insp-notes { display: flex; flex-direction: column; gap: var(--space-1); padding-top: var(--space-2); border-top: 1px solid var(--color-border); }
+.insp-note-line { font-size: var(--text-label); line-height: 1.4; font-variant-numeric: tabular-nums; }
+.insp-section-title {
+  margin-top: var(--space-1);
+  font-size: var(--text-label);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.recipe-grid { display: flex; flex-direction: column; gap: var(--space-1); }
+/* Recipe table (sketch 006 A2): name | − | [input] s | +, applied in one batch */
+.rtab {
+  display: grid;
+  grid-template-columns: 1fr 26px 70px 26px;
+  gap: 4px;
+  align-items: center;
+  padding: 2px 6px;
+  border-left: 3px solid transparent;
+  border-radius: 6px;
+  font-size: var(--text-label);
+}
+.rtab.dirty { background: rgba(47, 107, 255, 0.07); border-left-color: var(--color-accent); }
+.rtab .btn { height: 26px; padding: 0; font-size: 13px; }
+.recipe-label { display: flex; flex-direction: column; line-height: 1.25; }
+.recipe-name { font-size: var(--text-label); font-weight: var(--weight-semibold); }
+.rtab.dirty .recipe-name { color: var(--color-accent); }
+.recipe-was, .recipe-unit { font-size: 11px; color: var(--color-text-muted); }
+.recipe-cell { display: flex; align-items: center; justify-content: center; gap: 3px; }
+.recipe-input {
+  width: 56px;
+  height: 26px;
+  padding: 0 6px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-surface);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.recipe-input:focus { outline: 2px solid rgba(47, 107, 255, 0.35); border-color: var(--color-accent); }
+.recipe-input.bad { border-color: var(--color-danger); }
+.recipe-foot {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border);
+}
+.recipe-foot .btn { height: 28px; padding: 0 var(--space-3); font-size: var(--text-label); }
+.recipe-foot .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.recipe-count { flex: 1; font-size: var(--text-label); color: var(--color-text-muted); }
+.recipe-count.bad { color: var(--color-danger); }
+
+.chip { display: inline-flex; align-items: center; height: 20px; padding: 0 var(--space-2); border-radius: var(--radius-full); font-size: var(--text-label); font-weight: var(--weight-semibold); }
+.chip.idle { background: rgba(106, 119, 148, 0.10); color: var(--color-idle); }
+.chip.ok { background: rgba(18, 164, 106, 0.12); color: var(--color-success); }
+.chip.amber { background: rgba(224, 138, 0, 0.14); color: var(--color-warn); }
+.chip.danger { background: rgba(229, 72, 77, 0.12); color: var(--color-danger); }
+
+
+/* Action dock (right column of the lot inspector): [Bank/Release] over [Scrap]; reason list / scrap warning opens below. */
+.insp-dock-host { margin-top: var(--space-2); }
+.insp-dock-host.hidden { display: none; }
+.insp-dock { position: relative; display: flex; flex-direction: column; gap: var(--space-2); }
+.insp-dock-row { display: flex; gap: var(--space-2); }
+.insp-dock-row .btn { flex: 1; }
+.insp-dock-row .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.insp-menu { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-2); border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface); box-shadow: var(--shadow-md); }
+.insp-menu-item { width: 100%; text-align: left; }
+.insp-menu .insp-actions { margin-top: 0; }
+.insp-warn { color: var(--color-danger); font-weight: var(--weight-semibold); }
+
+@media (max-width: 1280px) {
+  #inspector { padding: var(--space-4); }
+}
+
+/* Lists (Stations / Lots tabs) */
+.list-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 36px;
+  padding: var(--space-1) var(--space-2);
+  border-left: 3px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.list-row:hover { background: rgba(30, 50, 90, 0.05); }
+.list-row.selected { background: rgba(47, 107, 255, 0.10); border-left-color: var(--color-accent); }
+.row-name { min-width: 72px; font-weight: var(--weight-semibold); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row-sub { font-size: var(--text-label); color: var(--color-text-muted); white-space: nowrap; }
+/* Lots list: all six columns sit on one line; the Lots panel is wide enough for the longest Status chip. */
+.lot-list, .lot-list .list-row { min-width: 0; }
+.lot-list .list-row { flex-wrap: nowrap; }
+.lot-head { border-left: 3px solid transparent; display: flex; flex-wrap: nowrap; align-items: center; gap: var(--space-2); padding: 0 var(--space-2); font-size: var(--text-label); font-weight: var(--weight-semibold); color: var(--color-text-muted); }
+.lot-head .lot-col-id, .lot-list .row-name { flex: 0 0 64px; min-width: 64px; }
+.lot-col-product, .lot-product { flex: 0 0 76px; overflow: hidden; text-overflow: ellipsis; }
+.lot-col-status, .lot-status { flex: 0 0 auto; white-space: nowrap; }
+.lot-status { display: flex; flex-wrap: nowrap; align-items: center; gap: var(--space-1); }
+/* Sortable Lots headers: plain text buttons; the active one shows ▲/▼ in the accent colour. */
+.lot-head .lot-sort { display: inline-flex; align-items: center; gap: 2px; padding: 0; border: 0; background: transparent; font: inherit; color: inherit; text-align: left; white-space: nowrap; cursor: pointer; }
+.lot-head .lot-sort:hover { color: var(--color-text); }
+.lot-head .lot-sort.active { color: var(--color-accent); }
+.lot-head .sort-arrow { font-size: 0.8em; }
+
+/* Stations list header and cells: Stage / Machine ID / Status / WIP / Avail / Util / Throughput share one line. */
+.list-head { border-left: 3px solid transparent; display: flex; flex-wrap: nowrap; align-items: center; gap: var(--space-2); padding: 0 var(--space-2); font-size: var(--text-label); font-weight: var(--weight-semibold); color: var(--color-text-muted); white-space: nowrap; }
+#tab-stations .list-head, #tab-lots .lot-head { position: sticky; top: 0; z-index: 1; background: var(--color-surface); padding-top: var(--space-1); padding-bottom: var(--space-1); }
+.station-col-stage, #tab-stations .row-name { flex: 0 0 56px; min-width: 56px; }
+.station-col-machine, .station-machine { flex: 0 0 68px; }
+.station-col-status, .station-status-cell { flex: 0 0 56px; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1); }
+.station-col-wip, .station-wip { flex: 0 0 32px; }
+.station-col-avail, .station-avail { flex: 0 0 44px; }
+.station-col-util, .station-util-pct { flex: 0 0 40px; }
+.station-col-tput, .station-tput { flex: 0 0 96px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.lot-col-progress, .lot-list .bar { flex: 0 0 80px; min-width: 80px; }
+.lot-col-step, .lot-step { flex: 0 0 64px; overflow: hidden; text-overflow: ellipsis; }
+.lot-col-prio, .lot-prio { flex: 0 0 60px; }
+.bar { flex: 1; min-width: 40px; height: 6px; border-radius: var(--radius-full); background: var(--color-neutral-band); overflow: hidden; }
+.bar-fill { display: block; height: 100%; background: var(--color-idle); }
+.bar-fill.accent { background: var(--color-accent); }
+.empty-copy { margin: 0; color: var(--color-text-muted); }
+#tabs { position: sticky; top: 0; }
+
+/* Event feed */
+#feed { color: var(--color-text-muted); font-size: var(--text-label); }
+.feed-line { white-space: pre; overflow: hidden; text-overflow: ellipsis; color: var(--color-text); }
+@media (max-width: 1279px) {
+  #feed { display: none; }
+}
+.insp-note-inline { font-size: var(--text-label); color: var(--color-text-muted); margin-left: var(--space-1); font-variant-numeric: tabular-nums; }
+
+/* Lot inspector tabs (sketch 005): Lot Info | Process Detail | Actions. */
+.insp-tabs { display: flex; gap: var(--space-1); border-bottom: 1px solid var(--color-border); }
+.insp-tab { position: relative; display: inline-flex; align-items: center; gap: var(--space-1); padding: var(--space-1) var(--space-3); border: 0; border-bottom: 2px solid transparent; background: transparent; font: inherit; font-size: var(--text-label); font-weight: var(--weight-semibold); color: var(--color-text-muted); cursor: pointer; }
+.insp-tab:hover { color: var(--color-text); }
+.insp-tab.active { color: var(--color-accent); border-bottom-color: var(--color-accent); }
+.tab-dot { width: 8px; height: 8px; border-radius: var(--radius-full); background: var(--color-warn); }
+
+/* Process Detail table */
+.insp-detail { width: 100%; border-collapse: collapse; font-size: var(--text-label); font-variant-numeric: tabular-nums; }
+.insp-detail th { padding: var(--space-1); text-align: left; font-weight: var(--weight-semibold); color: var(--color-text-muted); border-bottom: 1px solid var(--color-border); }
+.insp-detail td { padding: var(--space-1); white-space: nowrap; }
+.insp-detail .d-step { font-weight: var(--weight-semibold); }
+.insp-detail .d-plan { color: var(--color-text-muted); opacity: 0.7; font-size: 0.85em; }
+.insp-detail tr.d-current td { background: rgba(47, 107, 255, 0.10); }
+.insp-detail tr.d-failed .d-step { color: var(--color-danger); }
+.insp-detail tr.d-future td { color: var(--color-text-muted); }
+.insp-detail tr.d-skipped td { color: var(--color-text-muted); opacity: 0.5; }
+.insp-detail tr.d-notes td { padding-top: 0; white-space: normal; line-height: 1.4; }
+.dn-danger { color: var(--color-danger); }
+.dn-amber { color: var(--color-warn); }

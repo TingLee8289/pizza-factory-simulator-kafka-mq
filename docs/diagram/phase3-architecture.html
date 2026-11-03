@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phase 3 全產線架構圖</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=Noto+Serif+TC:wght@400&family=Noto+Sans+TC:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* Same editorial skin as phase1-architecture.html / phase2-station-flow.html: paper, ink, one accent. */
+  *, *::before, *::after { box-sizing: border-box; }
+  :root {
+    --color-paper: #f5f5f5; --color-ink: #2d3142; --color-muted: #4f5d75; --color-accent: #bf4520;
+    --color-rule: rgba(45,49,66,0.12);
+    --font-sans: 'Geist', 'Noto Sans TC', system-ui, sans-serif;
+    --font-serif: 'Instrument Serif', 'Noto Serif TC', serif;
+    --font-mono: 'Geist Mono', ui-monospace, monospace;
+    color-scheme: light;
+  }
+  body { margin: 0; background: var(--color-paper); color: var(--color-ink); font-family: var(--font-sans);
+    padding-block: 3rem; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .frame { max-width: 1200px; width: 100%; margin: 0 auto; }
+  .diagram-container { width: 100%; overflow-x: auto; }
+  .eyebrow { font-family: var(--font-mono); font-size: 0.66rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-muted); margin: 0 0 0.5rem; }
+  h1 { font-family: var(--font-serif); font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem); font-weight: 400; letter-spacing: -0.02em; line-height: 1.2; margin: 0 0 1.5rem; text-wrap: balance; }
+  svg { width: 100%; min-width: 1020px; display: block; }
+  .cards { display: grid; grid-template-columns: 1.1fr 1fr 0.9fr; gap: 12px; margin-top: 1.5rem; }
+  .cards > div { min-width: 0; background: #fff; border: 1px solid var(--color-rule); border-radius: 6px; padding: 14px 16px; }
+  .cards h2 { font-size: 0.85rem; font-weight: 600; margin: 0 0 4px; }
+  .cards p { margin: 0; font-size: 0.8rem; line-height: 1.6; color: var(--color-muted); }
+  code { font-family: var(--font-mono); font-size: 0.85em; }
+  @media (max-width: 760px) { .cards { grid-template-columns: 1fr; } }
+  @media print { .diagram-container { overflow-x: visible; } svg { min-width: 0; } }
+</style>
+</head>
+<body>
+<div class="frame">
+  <p class="eyebrow">Architecture · Phase 3 Full Line, Scheduler and Order Generation</p>
+  <h1>Phase 3 全產線:指令從 RabbitMQ 往下,事實從 Kafka 回來,Scheduler 用 credit 逐站放行</h1>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 1020 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="phase3-arch-title phase3-arch-desc">
+      <title id="phase3-arch-title">Phase 3 full line architecture</title>
+      <desc id="phase3-arch-desc">An order generator publishes work orders to RabbitMQ; the scheduler consumes them, keeps the backlog and releases one job at a time per station through RabbitMQ; seven stations emit completion facts to Kafka, and each completion returns a credit to the scheduler, which also records the order lifecycle in Kafka.</desc>
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#bf4520"/></marker>
+        <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+      </defs>
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- Arrows first -->
+      <!-- RabbitMQ commands (muted) -->
+      <line x1="200" y1="116" x2="280" y2="116" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="520" y1="116" x2="600" y2="116" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="360" y1="176" x2="360" y2="312" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="440" y1="312" x2="440" y2="176" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- Kafka facts (link) -->
+      <line x1="790" y1="176" x2="790" y2="312" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+      <line x1="520" y1="392" x2="600" y2="392" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+      <!-- Credit return (accent): Kafka -> Scheduler -->
+      <line x1="600" y1="352" x2="520" y2="352" stroke="#bf4520" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+
+      <!-- Arrow labels (opaque mask, 6-10px gap from stroke) -->
+      <rect x="224" y="94" width="32" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="240" y="103" fill="#5a6580" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ORDER</text>
+      <rect x="544" y="94" width="32" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="560" y="103" fill="#5a6580" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">JOB</text>
+      <rect x="304" y="240" width="48" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="328" y="249" fill="#5a6580" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">INTAKE</text>
+      <rect x="448" y="240" width="64" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="480" y="249" fill="#5a6580" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">DISPATCH</text>
+      <rect x="798" y="240" width="80" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="838" y="249" fill="#5a6580" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">OP_COMPLETED</text>
+      <rect x="530" y="330" width="60" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="560" y="339" fill="#bf4520" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CREDIT +1</text>
+      <rect x="530" y="370" width="60" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="560" y="379" fill="#5a6580" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">LIFECYCLE</text>
+
+      <!-- Nodes -->
+      <!-- Order generator (input) -->
+      <rect x="40" y="72" width="160" height="88" rx="6" fill="#f5f5f5"/>
+      <rect x="40" y="72" width="160" height="88" rx="6" fill="rgba(79,93,117,0.10)" stroke="#5a6580" stroke-width="1"/>
+      <rect x="48" y="78" width="48" height="12" rx="2" fill="transparent" stroke="rgba(90,101,128,0.40)" stroke-width="0.8"/>
+      <text x="72" y="87" fill="#5a6580" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">SOURCE</text>
+      <text x="120" y="116" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist','Noto Sans TC',sans-serif" text-anchor="middle">訂單產生器</text>
+      <text x="120" y="134" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">seed · rate · due_ts</text>
+      <text x="120" y="148" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">product · qty</text>
+
+      <!-- RabbitMQ (store) -->
+      <rect x="280" y="56" width="240" height="120" rx="6" fill="#f5f5f5"/>
+      <rect x="280" y="56" width="240" height="120" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+      <rect x="288" y="62" width="60" height="12" rx="2" fill="transparent" stroke="rgba(79,93,117,0.40)" stroke-width="0.8"/>
+      <text x="318" y="71" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">COMMANDS</text>
+      <text x="400" y="100" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist','Noto Sans TC',sans-serif" text-anchor="middle">RabbitMQ</text>
+      <text x="400" y="120" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">workorders.intake</text>
+      <text x="400" y="134" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">dispatch · station.&lt;id&gt;</text>
+      <text x="400" y="148" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">control</text>
+
+      <!-- Stations x7 (backend) -->
+      <rect x="600" y="56" width="380" height="120" rx="6" fill="#f5f5f5"/>
+      <rect x="600" y="56" width="380" height="120" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <rect x="608" y="62" width="56" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+      <text x="636" y="71" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">WORKERS</text>
+      <text x="790" y="92" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist','Noto Sans TC',sans-serif" text-anchor="middle">Station ×7</text>
+      <text x="790" y="108" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">1 outstanding cmd · prefetch 1 · manual ack</text>
+      <!-- station chips: spin, sauce, cheese, topping, bake (slowest), slice, pack -->
+      <rect x="611" y="120" width="46" height="28" rx="3" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="0.8"/>
+      <text x="634" y="138" fill="#2d3142" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">spin</text>
+      <rect x="663" y="120" width="46" height="28" rx="3" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="0.8"/>
+      <text x="686" y="138" fill="#2d3142" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">sauce</text>
+      <rect x="715" y="120" width="46" height="28" rx="3" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="0.8"/>
+      <text x="738" y="138" fill="#2d3142" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">cheese</text>
+      <rect x="767" y="120" width="46" height="28" rx="3" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="0.8"/>
+      <text x="790" y="138" fill="#2d3142" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">topping</text>
+      <rect x="819" y="120" width="46" height="28" rx="3" fill="#2d3142" stroke="#2d3142" stroke-width="0.8"/>
+      <text x="842" y="138" fill="#f5f5f5" font-size="8" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle">bake</text>
+      <rect x="871" y="120" width="46" height="28" rx="3" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="0.8"/>
+      <text x="894" y="138" fill="#2d3142" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">slice</text>
+      <rect x="923" y="120" width="46" height="28" rx="3" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="0.8"/>
+      <text x="946" y="138" fill="#2d3142" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">pack</text>
+      <text x="790" y="168" fill="#5a6580" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">bake slowest · queue builds in front of it</text>
+
+      <!-- Scheduler (focal) -->
+      <rect x="280" y="312" width="240" height="120" rx="6" fill="#f5f5f5"/>
+      <rect x="280" y="312" width="240" height="120" rx="6" fill="rgba(191,69,32,0.08)" stroke="#bf4520" stroke-width="1"/>
+      <rect x="288" y="318" width="28" height="12" rx="2" fill="transparent" stroke="rgba(191,69,32,0.40)" stroke-width="0.8"/>
+      <text x="302" y="327" fill="#bf4520" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">PC</text>
+      <text x="400" y="352" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist','Noto Sans TC',sans-serif" text-anchor="middle">Scheduler</text>
+      <text x="400" y="372" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">per-station backlog</text>
+      <text x="400" y="386" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">credit = 1 (= prefetch 1)</text>
+      <text x="400" y="400" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">rule: FIFO</text>
+
+      <!-- Kafka (store) -->
+      <rect x="600" y="312" width="380" height="120" rx="6" fill="#f5f5f5"/>
+      <rect x="600" y="312" width="380" height="120" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+      <rect x="608" y="318" width="40" height="12" rx="2" fill="transparent" stroke="rgba(79,93,117,0.40)" stroke-width="0.8"/>
+      <text x="628" y="327" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">FACTS</text>
+      <text x="790" y="352" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist','Noto Sans TC',sans-serif" text-anchor="middle">Kafka</text>
+      <text x="790" y="372" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">station.events</text>
+      <text x="790" y="386" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">order.lifecycle</text>
+      <text x="790" y="400" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">created → released → in process → completed</text>
+
+      <!-- Editorial callout -->
+      <text x="40" y="344" fill="#4f5d75" font-size="14" font-style="italic" font-family="'Instrument Serif','Noto Serif TC',serif">下一站的指令由 Scheduler</text>
+      <text x="40" y="364" fill="#4f5d75" font-size="14" font-style="italic" font-family="'Instrument Serif','Noto Serif TC',serif">在上一站完成後放行,</text>
+      <text x="40" y="384" fill="#4f5d75" font-size="14" font-style="italic" font-family="'Instrument Serif','Noto Serif TC',serif">不是站對站。</text>
+
+      <!-- Legend strip -->
+      <line x1="40" y1="472" x2="980" y2="472" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+      <text x="40" y="492" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">LEGEND</text>
+      <line x1="120" y1="489" x2="148" y2="489" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <text x="158" y="492" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace">RabbitMQ command</text>
+      <line x1="296" y1="489" x2="324" y2="489" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+      <text x="334" y="492" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace">Kafka fact</text>
+      <line x1="428" y1="489" x2="456" y2="489" stroke="#bf4520" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+      <text x="466" y="492" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace">credit return (Kafka)</text>
+      <rect x="640" y="482" width="24" height="14" rx="3" fill="#2d3142"/>
+      <text x="674" y="492" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace">bottleneck station</text>
+    </svg>
+  </div>
+
+  <div class="cards">
+    <div>
+      <h2>Credit 迴路</h2>
+      <p>Scheduler 每次只放行 <code>1</code> 個 job 給某一站(credit = prefetch 1)。該站的 <code>op_completed</code> 寫進 Kafka 後,credit +1,Scheduler 才放行下一個,所以每站同時最多一個待處理指令。</p>
+    </div>
+    <div>
+      <h2>Bake 是瓶頸</h2>
+      <p>bake 的處理時間最長。工作在它前面排隊(buffer 不限、不阻塞),其他站在等它。排隊發生在 Scheduler 的 backlog,不在 RabbitMQ,所以排程規則才有選擇空間。</p>
+    </div>
+    <div>
+      <h2>可觀察、可重現</h2>
+      <p><code>order.lifecycle</code> 記錄每張訂單的 created → released → in process → completed。訂單產生器用 seed 和到達率,同樣設定產生同樣的訂單序列。</p>
+    </div>
+  </div>
+</div>
+</body>
+</html>

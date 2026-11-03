@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phase 4 KPI 流程圖</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=Noto+Serif+TC:wght@400&family=Noto+Sans+TC:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* Same editorial skin as phase2-station-flow.html: paper, ink, one accent. */
+  *, *::before, *::after { box-sizing: border-box; }
+  :root {
+    --color-paper: #f5f5f5; --color-ink: #2d3142; --color-muted: #4f5d75; --color-accent: #bf4520;
+    --color-rule: rgba(45,49,66,0.12);
+    --font-sans: 'Geist', 'Noto Sans TC', system-ui, sans-serif;
+    --font-serif: 'Instrument Serif', 'Noto Serif TC', serif;
+    --font-mono: 'Geist Mono', ui-monospace, monospace;
+    color-scheme: light;
+  }
+  body { margin: 0; background: var(--color-paper); color: var(--color-ink); font-family: var(--font-sans);
+    padding-block: 3rem; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .frame { max-width: 1200px; width: 100%; margin: 0 auto; }
+  .diagram-container { width: 100%; overflow-x: auto; }
+  .eyebrow { font-family: var(--font-mono); font-size: 0.66rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-muted); margin: 0 0 0.5rem; }
+  h1 { font-family: var(--font-serif); font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem); font-weight: 400; letter-spacing: -0.02em; line-height: 1.2; margin: 0 0 1.5rem; text-wrap: balance; }
+  svg { width: 100%; min-width: 1000px; display: block; }
+  .cards { display: grid; grid-template-columns: 1.1fr 1fr 0.9fr; gap: 12px; margin-top: 1.5rem; }
+  .cards > div { min-width: 0; background: #fff; border: 1px solid var(--color-rule); border-radius: 6px; padding: 14px 16px; }
+  .cards h2 { font-size: 0.85rem; font-weight: 600; margin: 0 0 4px; }
+  .cards p { margin: 0; font-size: 0.8rem; line-height: 1.6; color: var(--color-muted); }
+  code { font-family: var(--font-mono); font-size: 0.85em; }
+  @media (max-width: 760px) { .cards { grid-template-columns: 1fr; } }
+  @media print { .diagram-container { overflow-x: visible; } svg { min-width: 0; } }
+</style>
+</head>
+<body>
+<div class="frame">
+  <p class="eyebrow">Flowchart · Phase 4 KPI Aggregator and Theory Validation</p>
+  <h1>Phase 4 KPI 流程:事件只 fold 進 state,每秒讀 state 發一張 snapshot</h1>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 1000 652" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="phase4-kpi-flow-title phase4-kpi-flow-desc">
+      <title id="phase4-kpi-flow-title">Phase 4 kpi-service flow</title>
+      <desc id="phase4-kpi-flow-desc">kpi-service consumes events from earliest; run.started resets state and recomputes theory values, events from another run or duplicates are dropped, valid events are folded into state by a pure function, and every second a tick computes KPIs, applies bottleneck hysteresis and the Little's Law check, then publishes to kpi.snapshots keyed by run_id.</desc>
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#bf4520"/></marker>
+      </defs>
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- Arrows first: event path (left column) -->
+      <line x1="240" y1="88" x2="240" y2="132" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="240" y1="220" x2="240" y2="260" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="240" y1="348" x2="240" y2="388" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- run.started -> reset -->
+      <line x1="360" y1="176" x2="420" y2="176" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- drop loop (dashed) -->
+      <path d="M 120,304 H 104 Q 96,304 96,296 V 72 Q 96,64 104,64 H 120" fill="none" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+      <!-- fold state -> snapshot computation (dashed: tick reads state) -->
+      <path d="M 360,420 H 642 Q 650,420 650,412 V 184 Q 650,176 658,176 H 680" fill="none" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+
+      <!-- Arrows: snapshot path (right column, accent) -->
+      <line x1="800" y1="88" x2="800" y2="144" stroke="#bf4520" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+      <line x1="800" y1="208" x2="800" y2="264" stroke="#bf4520" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+      <line x1="800" y1="328" x2="800" y2="384" stroke="#bf4520" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+
+      <!-- Arrow labels -->
+      <rect x="376" y="156" width="28" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="390" y="165" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">YES</text>
+      <rect x="252" y="234" width="24" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="264" y="243" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">NO</text>
+      <rect x="252" y="362" width="28" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="266" y="371" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">YES</text>
+      <rect x="28" y="172" width="56" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="56" y="181" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">NO</text>
+      <rect x="28" y="188" width="56" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="56" y="197" fill="#4f5d75" font-size="8" font-family="'Geist Mono', 'Noto Sans TC', monospace" text-anchor="middle" letter-spacing="0.08em">丟棄</text>
+      <rect x="481" y="400" width="48" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="505" y="409" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">STATE</text>
+
+      <!-- Start: event -->
+      <rect x="120" y="40" width="240" height="48" rx="24" fill="#f5f5f5"/>
+      <rect x="120" y="40" width="240" height="48" rx="24" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+      <text x="240" y="62" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">收到事件</text>
+      <text x="240" y="77" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">station.events · order.lifecycle</text>
+
+      <!-- Decision: run.started? -->
+      <polygon points="240,132 360,176 240,220 120,176" fill="#f5f5f5"/>
+      <polygon points="240,132 360,176 240,220 120,176" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="240" y="173" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">run.started?</text>
+      <text x="240" y="189" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">control queue</text>
+
+      <!-- Reset (end) -->
+      <rect x="420" y="144" width="200" height="64" rx="20" fill="#f5f5f5"/>
+      <rect x="420" y="144" width="200" height="64" rx="20" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+      <text x="520" y="174" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">重置 KPI state</text>
+      <text x="520" y="192" fill="#4f5d75" font-size="9" font-family="'Geist Mono', 'Noto Sans TC', monospace" text-anchor="middle">新 run_id · 依權重重算理論值</text>
+
+      <!-- Decision: same run and not duplicate? -->
+      <polygon points="240,260 360,304 240,348 120,304" fill="#f5f5f5"/>
+      <polygon points="240,260 360,304 240,348 120,304" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="240" y="301" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">同 run_id 且未重複?</text>
+      <text x="240" y="317" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">Deduper</text>
+
+      <!-- Fold -->
+      <rect x="120" y="388" width="240" height="64" rx="6" fill="#f5f5f5"/>
+      <rect x="120" y="388" width="240" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="240" y="418" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">fold(state, event) → state</text>
+      <text x="240" y="436" fill="#4f5d75" font-size="9" font-family="'Geist Mono', 'Noto Sans TC', monospace" text-anchor="middle">純函式 · 前 10 單 warm-up 不計</text>
+
+      <!-- Start: tick -->
+      <rect x="680" y="40" width="240" height="48" rx="24" fill="#f5f5f5"/>
+      <rect x="680" y="40" width="240" height="48" rx="24" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+      <text x="800" y="62" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">每秒 tick</text>
+      <text x="800" y="77" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">snapshot interval = 1 s</text>
+
+      <!-- Compute KPI -->
+      <rect x="680" y="144" width="240" height="64" rx="6" fill="#f5f5f5"/>
+      <rect x="680" y="144" width="240" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="800" y="174" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">計算 KPI 與理論值</text>
+      <text x="800" y="192" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">λ · L · W p50/p95 · U_i · WAIT</text>
+
+      <!-- Judge -->
+      <rect x="680" y="264" width="240" height="64" rx="6" fill="#f5f5f5"/>
+      <rect x="680" y="264" width="240" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="800" y="294" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif" text-anchor="middle">瓶頸 hysteresis + Little's Law</text>
+      <text x="800" y="312" fill="#4f5d75" font-size="9" font-family="'Geist Mono', 'Noto Sans TC', monospace" text-anchor="middle">U≥80% · 超 5pp 連 3 次 · 誤差≤10%</text>
+
+      <!-- Publish (focal, end) -->
+      <rect x="680" y="384" width="240" height="64" rx="20" fill="#f5f5f5"/>
+      <rect x="680" y="384" width="240" height="64" rx="20" fill="rgba(191,69,32,0.08)" stroke="#bf4520" stroke-width="1"/>
+      <text x="800" y="414" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">publish kpi.snapshots</text>
+      <text x="800" y="432" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">key = run_id · compact</text>
+
+      <!-- Annotation -->
+      <text x="420" y="520" fill="#2d3142" font-size="17" font-style="italic" font-family="'Instrument Serif', 'Noto Serif TC', serif">事件只改 state,snapshot 只讀 state。</text>
+      <text x="420" y="544" fill="#bf4520" font-size="17" font-style="italic" font-family="'Instrument Serif', 'Noto Serif TC', serif">從 earliest 重播,就能重建同一份 KPI。</text>
+
+      <!-- Legend strip -->
+      <line x1="40" y1="600" x2="960" y2="600" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+      <text x="40" y="616" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">LEGEND</text>
+      <rect x="40" y="628" width="14" height="10" rx="5" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+      <text x="60" y="636" fill="#4f5d75" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">起點 / 終點</text>
+      <rect x="160" y="628" width="14" height="10" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="180" y="636" fill="#4f5d75" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">步驟</text>
+      <polygon points="260,633 267,628 274,633 267,638" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="280" y="636" fill="#4f5d75" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">判斷</text>
+      <rect x="340" y="628" width="14" height="10" rx="5" fill="rgba(191,69,32,0.08)" stroke="#bf4520" stroke-width="1"/>
+      <text x="360" y="636" fill="#4f5d75" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">焦點:snapshot 發布</text>
+      <line x1="480" y1="633" x2="508" y2="633" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <text x="516" y="636" fill="#4f5d75" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">事件路徑</text>
+      <line x1="600" y1="633" x2="628" y2="633" stroke="#bf4520" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+      <text x="636" y="636" fill="#4f5d75" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">snapshot 路徑</text>
+      <line x1="740" y1="633" x2="768" y2="633" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+      <text x="776" y="636" fill="#4f5d75" font-size="8.5" font-family="'Geist', 'Noto Sans TC', sans-serif">丟棄 / 讀取 state</text>
+    </svg>
+  </div>
+
+  <div class="cards">
+    <div><h2>Warm-up 以訂單數計,統計是累計值</h2><p>每個 run 的前 <code>WARMUP_ORDERS</code>(預設 10)張訂單不計入任何統計。throughput、WIP、cycle time、utilization 都從第一張非 warm-up 訂單開始累計,不用滑動視窗,才對得上 Little's Law 的長期平均。utilization 用 <code>station_status</code> busy 區間的 <code>ts</code> 差,不用 <code>duration_s</code>。</p></div>
+    <div><h2>瓶頸 hysteresis</h2><p>瓶頸是 utilization 最高的站。挑戰者要比現任高出 <code>BOTTLENECK_MARGIN</code>(約 5pp),並連續 <code>BOTTLENECK_CONFIRM_N</code>(約 3)張 snapshot,才換人。最高值低於 80% 時回報 <code>null</code>。</p></div>
+    <div><h2>唯一的 pass/fail</h2><p>只有 Little's Law(<code>L</code> 對 <code>λ×W</code>,容差 10%)給 pass/fail。實測 throughput 對瓶頸產能只顯示百分比。理論值由 <code>run.started</code> 權重與 E[qty]=2 算出。</p></div>
+  </div>
+</div>
+</body>
+</html>

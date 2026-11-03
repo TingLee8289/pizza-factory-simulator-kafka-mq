@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>生成器落後時序圖</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;600&family=Noto+Serif+TC:wght@400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;
+      --color-ink:     #2d3142;
+      --color-muted:   #4f5d75;
+      --color-accent:  #bf4520;
+      --font-sans:     'Geist', 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Noto Serif TC', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+    .frame { max-width: 1200px; width: 100%; }
+    .diagram-container { width: 100%; overflow-x: auto; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+    svg { width: 100%; min-width: 960px; display: block; }
+    @media print {
+      .diagram-container { overflow-x: visible; }
+      svg { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Sequence · 根因：主機睡眠</p>
+    <h1>為什麼新下的單一出生就 Late</h1>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 960 868" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="learned-generator-late-sequence-title learned-generator-late-sequence-desc">
+        <title id="learned-generator-late-sequence-title">生成器下單為何一出生就 Late</title>
+        <desc id="learned-generator-late-sequence-desc">主機睡眠 1027 秒期間 WSL2 VM 凍結，generator 的 monotonic 排程時鐘停住而 UTC 牆鐘醒來後校正，created_ts 仍取計畫時間，使之後每張單的 due 與 ETA 都比實際送出早約 1026 秒。</desc>
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+          <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#bf4520"/></marker>
+          <marker id="arrow-open" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polyline points="0 0, 8 3, 0 6" fill="none" stroke="#4f5d75" stroke-width="1.2"/></marker>
+        </defs>
+
+        <rect width="960" height="868" fill="#f5f5f5"/>
+
+        <!-- OPT frame: host sleep (spans clock + host lifelines) -->
+        <rect x="400" y="280" width="284" height="188" rx="4" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.22)" stroke-width="1"/>
+        <rect x="400" y="280" width="40" height="16" rx="2" fill="#f5f5f5" stroke="rgba(45,49,66,0.22)" stroke-width="1"/>
+        <text x="420" y="292" fill="#4f5d75" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.12em">OPT</text>
+        <text x="448" y="312" fill="#4f5d75" font-size="10" font-family="'Geist', 'Noto Sans TC', sans-serif">[闔上螢幕 · 主機睡眠 1027.4 s]</text>
+
+        <!-- Lifelines -->
+        <g stroke="rgba(45,49,66,0.20)" stroke-width="1" stroke-dasharray="3,3">
+          <line x1="156" y1="152" x2="156" y2="760"/>
+          <line x1="432" y1="152" x2="432" y2="760"/>
+          <line x1="652" y1="152" x2="652" y2="760"/>
+          <line x1="856" y1="152" x2="856" y2="760"/>
+        </g>
+
+        <!-- Activation bars -->
+        <rect x="152" y="200" width="8" height="544" fill="rgba(45,49,66,0.06)" stroke="#4f5d75" stroke-width="0.8"/>
+        <rect x="428" y="216" width="8" height="292" fill="rgba(45,49,66,0.06)" stroke="#4f5d75" stroke-width="0.8"/>
+        <rect x="852" y="660" width="8" height="24" fill="rgba(45,49,66,0.06)" stroke="#4f5d75" stroke-width="0.8"/>
+
+        <!-- 1 sleep until planned offset (monotonic) -->
+        <line x1="160" y1="216" x2="428" y2="216" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+        <rect x="226" y="194" width="136" height="16" fill="#f5f5f5"/>
+        <text x="294" y="206" fill="#2d3142" font-size="11" text-anchor="middle" font-family="'Geist', 'Noto Sans TC', sans-serif">1 sleep 到計畫時間</text>
+
+        <!-- 2 host sleeps (async) -->
+        <line x1="652" y1="344" x2="436" y2="344" stroke="#4f5d75" stroke-width="1" stroke-dasharray="5,4" marker-end="url(#arrow-open)"/>
+        <rect x="482" y="322" width="120" height="16" fill="#f5f5f5"/>
+        <text x="542" y="334" fill="#2d3142" font-size="11" text-anchor="middle" font-family="'Geist', 'Noto Sans TC', sans-serif">2 睡眠 10:38:18Z</text>
+        <text x="542" y="384" fill="#4f5d75" font-size="10" text-anchor="middle" font-family="'Geist Mono', 'Noto Sans TC', monospace">VM 凍結 · monotonic 停住</text>
+
+        <!-- 3 host wakes (async) -->
+        <line x1="652" y1="424" x2="436" y2="424" stroke="#4f5d75" stroke-width="1" stroke-dasharray="5,4" marker-end="url(#arrow-open)"/>
+        <rect x="482" y="402" width="120" height="16" fill="#f5f5f5"/>
+        <text x="542" y="414" fill="#2d3142" font-size="11" text-anchor="middle" font-family="'Geist', 'Noto Sans TC', sans-serif">3 喚醒 10:55:26Z</text>
+        <text x="542" y="446" fill="#4f5d75" font-size="10" text-anchor="middle" font-family="'Geist Mono', 'Noto Sans TC', monospace">UTC +1027 s · monotonic +0</text>
+
+        <!-- 4 sleep returns (return) -->
+        <line x1="428" y1="508" x2="160" y2="508" stroke="#4f5d75" stroke-width="1" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+        <rect x="234" y="486" width="120" height="16" fill="#f5f5f5"/>
+        <text x="294" y="498" fill="#4f5d75" font-size="11" text-anchor="middle" font-family="'Geist', 'Noto Sans TC', sans-serif">4 sleep 才剛到期</text>
+
+        <!-- 5 created_ts = planned time (headline defect) -->
+        <path d="M160 548 H196 V564 H160" fill="none" stroke="#bf4520" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+        <text x="208" y="558" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif">5 created_ts = 計畫 10:38:22</text>
+        <text x="208" y="576" fill="#4f5d75" font-size="10" font-family="'Geist', 'Noto Sans TC', sans-serif">shift 只補 pause / scale，不含睡眠</text>
+
+        <!-- 6 due / eta anchored on created_ts -->
+        <path d="M160 604 H196 V620 H160" fill="none" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+        <text x="208" y="614" fill="#2d3142" font-size="11" font-family="'Geist', 'Noto Sans TC', sans-serif">6 due · eta 以 created 起算</text>
+        <text x="208" y="632" fill="#4f5d75" font-size="10" font-family="'Geist Mono', 'Noto Sans TC', monospace">due = created + ETA × 1.5</text>
+
+        <!-- 7 lifecycle created to Kafka -->
+        <line x1="160" y1="668" x2="852" y2="668" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+        <rect x="694" y="646" width="120" height="16" fill="#f5f5f5"/>
+        <text x="754" y="658" fill="#2d3142" font-size="11" text-anchor="middle" font-family="'Geist Mono', ui-monospace, monospace">7 ts=10:55:28</text>
+
+        <!-- 8 every later order keeps the offset -->
+        <path d="M160 708 H196 V724 H160" fill="none" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+        <text x="208" y="718" fill="#2d3142" font-size="11" font-family="'Geist', 'Noto Sans TC', sans-serif">8 之後每張固定落後 ~1026 s</text>
+        <text x="208" y="736" fill="#4f5d75" font-size="10" font-family="'Geist', 'Noto Sans TC', sans-serif">排程 base 整體平移，不會追回</text>
+
+        <!-- Actors -->
+        <rect x="72" y="96" width="168" height="56" rx="6" fill="rgba(191,69,32,0.08)" stroke="#bf4520" stroke-width="1.2"/>
+        <text x="156" y="118" fill="#2d3142" font-size="14" font-weight="600" text-anchor="middle" font-family="'Geist', 'Noto Sans TC', sans-serif">生成器 Generator</text>
+        <text x="156" y="136" fill="#4f5d75" font-size="10" text-anchor="middle" font-family="'Geist Mono', ui-monospace, monospace">_run_orders</text>
+
+        <rect x="348" y="96" width="168" height="56" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+        <text x="432" y="118" fill="#2d3142" font-size="14" font-weight="600" text-anchor="middle" font-family="'Geist', 'Noto Sans TC', sans-serif">容器時鐘 WSL2</text>
+        <text x="432" y="136" fill="#4f5d75" font-size="10" text-anchor="middle" font-family="'Geist Mono', ui-monospace, monospace">time.monotonic</text>
+
+        <rect x="568" y="96" width="168" height="56" rx="6" fill="#ffffff" stroke="#4f5d75" stroke-width="1"/>
+        <text x="652" y="118" fill="#2d3142" font-size="14" font-weight="600" text-anchor="middle" font-family="'Geist', 'Noto Sans TC', sans-serif">Windows 主機</text>
+        <text x="652" y="136" fill="#4f5d75" font-size="10" text-anchor="middle" font-family="'Geist Mono', ui-monospace, monospace">Kernel-Power 42</text>
+
+        <rect x="772" y="96" width="168" height="56" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+        <text x="856" y="118" fill="#2d3142" font-size="14" font-weight="600" text-anchor="middle" font-family="'Geist', 'Noto Sans TC', sans-serif">Kafka</text>
+        <text x="856" y="136" fill="#4f5d75" font-size="10" text-anchor="middle" font-family="'Geist Mono', ui-monospace, monospace">order.lifecycle</text>
+
+        <!-- Legend strip -->
+        <rect x="40" y="784" width="880" height="60" rx="4" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+        <text x="56" y="806" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist Mono', ui-monospace, monospace">10:38:18Z → 10:55:26Z</text>
+        <text x="56" y="826" fill="#4f5d75" font-size="10" font-family="'Geist', 'Noto Sans TC', sans-serif">Windows 睡眠紀錄，log 無任何錯誤</text>
+        <text x="340" y="806" fill="#bf4520" font-size="11" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif">L-0804 · 落後 1026 s</text>
+        <text x="340" y="826" fill="#4f5d75" font-size="10" font-family="'Geist', 'Noto Sans TC', sans-serif">created 10:38:22，實際進線 10:55:28</text>
+        <text x="624" y="806" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', 'Noto Sans TC', sans-serif">修正</text>
+        <text x="624" y="826" fill="#4f5d75" font-size="10" font-family="'Geist', 'Noto Sans TC', sans-serif">created 取送出時 utc_now，另記 release lag</text>
+      </svg>
+    </div>
+  </div>
+</body>
+</html>

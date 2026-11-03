@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="t">
+  <title id="t">Pizza Factory</title>
+  <defs>
+    <radialGradient id="crust" cx="42%" cy="34%" r="72%">
+      <stop offset="0" stop-color="#f8b53f"/>
+      <stop offset=".65" stop-color="#f5a623"/>
+      <stop offset="1" stop-color="#e9961b"/>
+    </radialGradient>
+    <radialGradient id="cheese" cx="40%" cy="32%" r="78%">
+      <stop offset="0" stop-color="#fdf3c6"/>
+      <stop offset=".7" stop-color="#fae9a9"/>
+      <stop offset="1" stop-color="#f5dd93"/>
+    </radialGradient>
+    <radialGradient id="pep" cx="40%" cy="34%" r="72%">
+      <stop offset="0" stop-color="#e03027"/>
+      <stop offset="1" stop-color="#cb1f18"/>
+    </radialGradient>
+  </defs>
+
+  <!-- crust -->
+  <circle cx="128" cy="128" r="110" fill="#8a2c0b"/>
+  <circle cx="128" cy="128" r="101" fill="url(#crust)"/>
+  <g fill="#e08a1a" opacity=".55">
+    <ellipse cx="55.0" cy="59.0" rx="4.6" ry="2.6" transform="rotate(-42 55.0 59.0)"/>
+    <ellipse cx="201.0" cy="57.0" rx="4.6" ry="2.6" transform="rotate(42 201.0 57.0)"/>
+    <ellipse cx="36.5" cy="106.0" rx="2.6" ry="4.2" transform="rotate(8 36.5 106.0)"/>
+    <ellipse cx="219.5" cy="106.0" rx="2.6" ry="4.2" transform="rotate(-8 219.5 106.0)"/>
+    <ellipse cx="47.0" cy="172.0" rx="2.6" ry="4.2" transform="rotate(-30 47.0 172.0)"/>
+    <ellipse cx="209.0" cy="172.0" rx="2.6" ry="4.2" transform="rotate(30 209.0 172.0)"/>
+    <ellipse cx="128.0" cy="220.0" rx="4.8" ry="2.6" transform="rotate(0 128.0 220.0)"/>
+    <ellipse cx="94.0" cy="214.0" rx="3.6" ry="2.2" transform="rotate(-18 94.0 214.0)"/>
+    <ellipse cx="163.0" cy="214.0" rx="3.6" ry="2.2" transform="rotate(18 163.0 214.0)"/>
+  </g>
+
+  <!-- sauce + cheese -->
+  <path d="M214.05 159.41C211.26 167.03 202.63 172.37 197.53 179.29C192.42 186.21 189.87 196.04 183.41 200.94C176.94 205.85 166.80 205.68 158.76 208.74C150.72 211.80 143.26 218.68 135.17 219.32C127.09 219.95 118.64 214.32 110.23 212.55C101.81 210.78 91.81 212.54 84.66 208.70C77.52 204.86 73.46 195.56 67.34 189.52C61.21 183.48 51.85 179.55 47.91 172.46C43.98 165.37 45.59 155.35 43.71 146.96C41.82 138.56 36.07 130.20 36.59 122.10C37.11 114.01 43.89 106.45 46.84 98.37C49.79 90.29 49.47 80.15 54.29 73.62C59.10 67.09 68.89 64.40 75.74 59.20C82.59 53.99 87.81 45.29 95.39 42.40C102.97 39.51 112.66 42.54 121.23 41.87C129.81 41.19 138.90 36.69 146.84 38.36C154.78 40.03 161.30 47.81 168.88 51.88C176.45 55.95 186.54 57.08 192.32 62.78C198.09 68.47 199.36 78.54 203.54 86.06C207.72 93.58 215.59 99.99 217.37 107.90C219.15 115.82 214.77 124.98 214.22 133.56C213.67 142.14 216.83 151.79 214.05 159.41Z" fill="#df2a22"/>
+  <path d="M211.75 140.66C210.84 146.68 201.10 150.88 198.52 157.13C195.94 163.37 199.88 173.22 196.27 178.13C192.67 183.03 182.10 182.23 176.91 186.56C171.72 190.89 170.63 201.44 165.16 204.11C159.69 206.78 150.70 201.16 144.09 202.58C137.49 204.01 131.61 212.84 125.53 212.66C119.45 212.49 114.10 203.33 107.59 201.52C101.08 199.71 91.77 204.80 86.47 201.82C81.16 198.83 80.68 188.24 75.76 183.61C70.83 178.99 60.23 179.17 56.92 174.06C53.61 168.95 58.11 159.35 55.90 152.96C53.69 146.58 44.21 141.81 43.66 135.75C43.10 129.69 51.55 123.28 52.56 116.60C53.57 109.92 47.39 101.29 49.71 95.67C52.04 90.04 62.50 88.29 66.50 82.84C70.50 77.40 69.03 66.89 73.71 62.99C78.38 59.09 88.46 62.40 94.53 59.43C100.60 56.47 104.19 46.49 110.14 45.21C116.09 43.92 123.47 51.54 130.23 51.73C136.98 51.93 144.80 44.76 150.66 46.39C156.52 48.02 159.53 58.19 165.41 61.50C171.30 64.82 181.56 62.10 185.99 66.27C190.43 70.43 188.36 80.84 192.03 86.51C195.71 92.18 206.05 94.54 208.04 100.29C210.03 106.04 203.36 114.29 203.98 121.02C204.60 127.74 212.66 134.64 211.75 140.66Z" fill="url(#cheese)"/>
+  <g fill="#f3cf84" opacity=".9">
+    <ellipse cx="91.5" cy="79.0" rx="3.1" ry="2.3"/>
+    <ellipse cx="164.0" cy="80.0" rx="2.7" ry="2.1"/>
+    <ellipse cx="146.0" cy="106.0" rx="2.8" ry="2.2"/>
+    <ellipse cx="157.0" cy="126.0" rx="3.4" ry="2.5"/>
+    <ellipse cx="107.0" cy="142.0" rx="3.3" ry="2.4"/>
+    <ellipse cx="141.0" cy="178.0" rx="2.7" ry="2.1"/>
+    <ellipse cx="164.0" cy="183.0" rx="2.8" ry="2.2"/>
+    <ellipse cx="104.0" cy="106.0" rx="2.2" ry="1.7"/>
+  </g>
+
+  <!-- pepperoni -->
+  <g>
+    <circle cx="128" cy="70.5" r="18.6" fill="url(#pep)"/>
+    <circle cx="122.79" cy="64.92" r="3.16" fill="#f0887a"/>
+    <circle cx="133.58" cy="73.85" r="2.23" fill="#f39a8b"/>
+    <circle cx="128.37" cy="62.69" r="1.67" fill="#f39a8b"/>
+  </g>
+  <g>
+    <circle cx="79.5" cy="126.5" r="19.0" fill="url(#pep)"/>
+    <circle cx="74.18" cy="120.80" r="3.23" fill="#f0887a"/>
+    <circle cx="85.20" cy="129.92" r="2.28" fill="#f39a8b"/>
+    <circle cx="79.88" cy="118.52" r="1.71" fill="#f39a8b"/>
+  </g>
+  <g>
+    <circle cx="178.0" cy="126.0" r="19.0" fill="url(#pep)"/>
+    <circle cx="172.68" cy="120.30" r="3.23" fill="#f0887a"/>
+    <circle cx="183.70" cy="129.42" r="2.28" fill="#f39a8b"/>
+    <circle cx="178.38" cy="118.02" r="1.71" fill="#f39a8b"/>
+  </g>
+  <g>
+    <circle cx="144.5" cy="150.5" r="19.0" fill="url(#pep)"/>
+    <circle cx="139.18" cy="144.80" r="3.23" fill="#f0887a"/>
+    <circle cx="150.20" cy="153.92" r="2.28" fill="#f39a8b"/>
+    <circle cx="144.88" cy="142.52" r="1.71" fill="#f39a8b"/>
+  </g>
+  <g>
+    <circle cx="116.0" cy="178.5" r="18.4" fill="url(#pep)"/>
+    <circle cx="110.85" cy="172.98" r="3.13" fill="#f0887a"/>
+    <circle cx="121.52" cy="181.81" r="2.21" fill="#f39a8b"/>
+    <circle cx="116.37" cy="170.77" r="1.66" fill="#f39a8b"/>
+  </g>
+
+  <!-- basil -->
+  <g transform="translate(85.5 90.0) rotate(-28) scale(1.18)">
+    <path d="M-10 0Q-2 -9 14 -2Q2 7 -10 0Z" fill="#3f8c33"/>
+    <path d="M-10 0Q-2 -9 14 -2Q2 7 -10 0Z" fill="none" stroke="#357a2b" stroke-width="1.1" stroke-linejoin="round"/>
+    <path d="M-7 0.2Q1 0.4 11 -1.2" fill="none" stroke="#2d6b25" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(170.0 88.0) rotate(208) scale(1.18)">
+    <path d="M-10 0Q-2 -9 14 -2Q2 7 -10 0Z" fill="#3f8c33"/>
+    <path d="M-10 0Q-2 -9 14 -2Q2 7 -10 0Z" fill="none" stroke="#357a2b" stroke-width="1.1" stroke-linejoin="round"/>
+    <path d="M-7 0.2Q1 0.4 11 -1.2" fill="none" stroke="#2d6b25" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(124.0 113.5) rotate(58) scale(1.12)">
+    <path d="M-10 0Q-2 -9 14 -2Q2 7 -10 0Z" fill="#3f8c33"/>
+    <path d="M-10 0Q-2 -9 14 -2Q2 7 -10 0Z" fill="none" stroke="#357a2b" stroke-width="1.1" stroke-linejoin="round"/>
+    <path d="M-7 0.2Q1 0.4 11 -1.2" fill="none" stroke="#2d6b25" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(91.0 163.0) rotate(18) scale(1.14)">
+    <path d="M-10 0Q-2 -9 14 -2Q2 7 -10 0Z" fill="#3f8c33"/>
+    <path d="M-10 0Q-2 -9 14 -2Q2 7 -10 0Z" fill="none" stroke="#357a2b" stroke-width="1.1" stroke-linejoin="round"/>
+    <path d="M-7 0.2Q1 0.4 11 -1.2" fill="none" stroke="#2d6b25" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(176.0 162.0) rotate(-24) scale(1.14)">
+    <path d="M-10 0Q-2 -9 14 -2Q2 7 -10 0Z" fill="#3f8c33"/>
+    <path d="M-10 0Q-2 -9 14 -2Q2 7 -10 0Z" fill="none" stroke="#357a2b" stroke-width="1.1" stroke-linejoin="round"/>
+    <path d="M-7 0.2Q1 0.4 11 -1.2" fill="none" stroke="#2d6b25" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+</svg>

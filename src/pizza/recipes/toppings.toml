@@ -1,0 +1,6 @@
+station = "toppings"
+
+[unit_time_s]
+margherita = 4.0
+pepperoni = 6.0
+veggie = 6.0

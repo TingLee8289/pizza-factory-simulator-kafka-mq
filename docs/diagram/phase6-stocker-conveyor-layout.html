@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stocker 輸送帶佈局(待確認)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;   /* white-smoke */
+      --color-ink:     #2d3142;   /* jet-black */
+      --color-muted:   #4f5d75;   /* blue-slate */
+      --color-accent:  #bf4520;   /* burnt-tangerine */
+      --font-sans:     'Geist', 'Noto Sans TC', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Noto Sans TC', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+    .frame { max-width: 1200px; width: 100%; }
+    .diagram-container { width: 100%; overflow-x: auto; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+    svg { width: 100%; min-width: 960px; display: block; }
+    @media print {
+      .diagram-container { overflow-x: visible; }
+      svg { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Layout · 待確認</p>
+    <h1>Stocker 輸送帶佈局:每站入口分流,共用去程與回程</h1>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 960 580" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="phase6-stocker-conveyor-layout-title phase6-stocker-conveyor-layout-desc">
+        <title id="phase6-stocker-conveyor-layout-title">Stocker 輸送帶佈局</title>
+        <desc id="phase6-stocker-conveyor-layout-desc">主線由左至右經過七站,每站入口前有分流點送往共用去程輸送帶,Stocker 位於後方左側,回程輸送帶把批次送回各站入口。</desc>
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+          <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#bf4520"/></marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+        <!-- Main line belt (drawn first, behind stations and diverters) -->
+        <rect x="60" y="432" width="860" height="16" rx="2" fill="#bfc0c0"/>
+        <text x="60" y="468" font-family="Geist Mono, monospace" font-size="9" fill="#4f5d75" letter-spacing="0.14em">MAIN LINE → 主線(左到右)</text>
+
+        <!-- Outbound: diverter on the belt before each station, up to the shared to-Stocker lane -->
+        <path d="M170,432 V252" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <path d="M280,432 V252" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <path d="M390,432 V252" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <path d="M500,432 V252" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <path d="M610,432 V252" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <path d="M720,432 V252" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <path d="M830,432 V252" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+        <!-- To-Stocker lane (去程): flows right to left, then up into Stocker entry -->
+        <path d="M830,250 H150 V134" fill="none" stroke="#2d3142" stroke-width="1.6" marker-end="url(#arrow)"/>
+        <rect x="420" y="228" width="160" height="14" fill="#f5f5f5"/>
+        <text x="500" y="239" text-anchor="middle" font-family="Geist Mono, monospace" font-size="9" fill="#4f5d75" letter-spacing="0.12em">TO STOCKER 去程</text>
+
+        <!-- Return lane (回程): from Stocker exit, flows right, bridges (hops) each outbound crossing -->
+        <path d="M100,130 V280 H162 a8,8 0 0,1 16,0 H272 a8,8 0 0,1 16,0 H382 a8,8 0 0,1 16,0 H492 a8,8 0 0,1 16,0 H602 a8,8 0 0,1 16,0 H712 a8,8 0 0,1 16,0 H822 a8,8 0 0,1 16,0 H880" fill="none" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3"/>
+        <rect x="878" y="286" width="54" height="14" fill="#f5f5f5"/>
+        <text x="882" y="297" font-family="Geist Mono, monospace" font-size="9" fill="#4f5d75" letter-spacing="0.12em">RETURN</text>
+
+        <!-- Return drops into each station's input (enter from the top) -->
+        <path d="M210,280 V338" fill="none" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+        <path d="M320,280 V338" fill="none" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+        <path d="M430,280 V338" fill="none" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+        <path d="M540,280 V338" fill="none" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+        <path d="M650,280 V338" fill="none" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+        <path d="M760,280 V338" fill="none" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+        <path d="M870,280 V338" fill="none" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+
+        <!-- Diverters on the belt (one per station input) -->
+        <circle cx="170" cy="440" r="5" fill="#f5f5f5" stroke="#2d3142" stroke-width="1.2"/>
+        <circle cx="280" cy="440" r="5" fill="#f5f5f5" stroke="#2d3142" stroke-width="1.2"/>
+        <circle cx="390" cy="440" r="5" fill="#f5f5f5" stroke="#2d3142" stroke-width="1.2"/>
+        <circle cx="500" cy="440" r="5" fill="#f5f5f5" stroke="#2d3142" stroke-width="1.2"/>
+        <circle cx="610" cy="440" r="5" fill="#f5f5f5" stroke="#2d3142" stroke-width="1.2"/>
+        <circle cx="720" cy="440" r="5" fill="#f5f5f5" stroke="#2d3142" stroke-width="1.2"/>
+        <circle cx="830" cy="440" r="5" fill="#f5f5f5" stroke="#2d3142" stroke-width="1.2"/>
+
+        <!-- Stocker warehouse (focal, back-left) -->
+        <rect x="60" y="40" width="200" height="90" rx="6" fill="#f5f5f5" stroke="#bf4520" stroke-width="1.5"/>
+        <text x="160" y="80" text-anchor="middle" font-family="Geist, Noto Sans TC, sans-serif" font-size="14" font-weight="600" fill="#2d3142">Stocker 倉庫</text>
+        <text x="160" y="102" text-anchor="middle" font-family="Geist Mono, monospace" font-size="9" fill="#4f5d75" letter-spacing="0.12em">WAIT LOTS · 等待下一站</text>
+
+        <!-- Stations on the main line -->
+        <g>
+          <rect x="185" y="340" width="90" height="56" rx="6" fill="#f5f5f5" stroke="#2d3142" stroke-width="1"/>
+          <text x="230" y="364" text-anchor="middle" font-family="Geist, sans-serif" font-size="13" font-weight="600" fill="#2d3142">spin</text>
+          <text x="230" y="382" text-anchor="middle" font-family="Geist Mono, monospace" font-size="9" fill="#4f5d75">station 1</text>
+        </g>
+        <g>
+          <rect x="295" y="340" width="90" height="56" rx="6" fill="#f5f5f5" stroke="#2d3142" stroke-width="1"/>
+          <text x="340" y="364" text-anchor="middle" font-family="Geist, sans-serif" font-size="13" font-weight="600" fill="#2d3142">sauce</text>
+          <text x="340" y="382" text-anchor="middle" font-family="Geist Mono, monospace" font-size="9" fill="#4f5d75">station 2</text>
+        </g>
+        <g>
+          <rect x="405" y="340" width="90" height="56" rx="6" fill="#f5f5f5" stroke="#2d3142" stroke-width="1"/>
+          <text x="450" y="364" text-anchor="middle" font-family="Geist, sans-serif" font-size="13" font-weight="600" fill="#2d3142">cheese</text>
+          <text x="450" y="382" text-anchor="middle" font-family="Geist Mono, monospace" font-size="9" fill="#4f5d75">station 3</text>
+        </g>
+        <g>
+          <rect x="515" y="340" width="90" height="56" rx="6" fill="#f5f5f5" stroke="#2d3142" stroke-width="1"/>
+          <text x="560" y="364" text-anchor="middle" font-family="Geist, sans-serif" font-size="13" font-weight="600" fill="#2d3142">toppings</text>
+          <text x="560" y="382" text-anchor="middle" font-family="Geist Mono, monospace" font-size="9" fill="#4f5d75">station 4</text>
+        </g>
+        <g>
+          <rect x="625" y="340" width="90" height="56" rx="6" fill="#f5f5f5" stroke="#2d3142" stroke-width="1"/>
+          <text x="670" y="364" text-anchor="middle" font-family="Geist, sans-serif" font-size="13" font-weight="600" fill="#2d3142">bake</text>
+          <text x="670" y="382" text-anchor="middle" font-family="Geist Mono, monospace" font-size="9" fill="#4f5d75">station 5</text>
+        </g>
+        <g>
+          <rect x="735" y="340" width="90" height="56" rx="6" fill="#f5f5f5" stroke="#2d3142" stroke-width="1"/>
+          <text x="780" y="364" text-anchor="middle" font-family="Geist, sans-serif" font-size="13" font-weight="600" fill="#2d3142">slice</text>
+          <text x="780" y="382" text-anchor="middle" font-family="Geist Mono, monospace" font-size="9" fill="#4f5d75">station 6</text>
+        </g>
+        <g>
+          <rect x="845" y="340" width="90" height="56" rx="6" fill="#f5f5f5" stroke="#2d3142" stroke-width="1"/>
+          <text x="890" y="364" text-anchor="middle" font-family="Geist, sans-serif" font-size="13" font-weight="600" fill="#2d3142">package</text>
+          <text x="890" y="382" text-anchor="middle" font-family="Geist Mono, monospace" font-size="9" fill="#4f5d75">station 7</text>
+        </g>
+
+        <!-- Legend strip -->
+        <line x1="60" y1="516" x2="900" y2="516" stroke="#2d3142" stroke-opacity="0.15" stroke-width="0.8"/>
+        <path d="M60,540 H100" fill="none" stroke="#2d3142" stroke-width="1.6" marker-end="url(#arrow)"/>
+        <text x="110" y="544" font-family="Geist Mono, monospace" font-size="9" fill="#4f5d75">去程:批次送往 Stocker(實線)</text>
+        <path d="M400,540 H440" fill="none" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="450" y="544" font-family="Geist Mono, monospace" font-size="9" fill="#4f5d75">回程:送回各站入口(虛線)</text>
+        <circle cx="700" cy="540" r="5" fill="#f5f5f5" stroke="#2d3142" stroke-width="1.2"/>
+        <text x="714" y="544" font-family="Geist Mono, monospace" font-size="9" fill="#4f5d75">分流點(每站入口前)</text>
+        <path d="M60,562 a8,8 0 0,1 16,0" fill="none" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="110" y="566" font-family="Geist Mono, monospace" font-size="9" fill="#4f5d75">回程跨越去程:橋接(hop)</text>
+      </svg>
+    </div>
+  </div>
+</body>
+</html>
