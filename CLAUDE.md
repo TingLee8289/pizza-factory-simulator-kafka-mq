@@ -110,7 +110,6 @@
 - PyPI JSON API (confluent-kafka, aiokafka, aio-pika, pika, fastapi, uvicorn, pydantic, pydantic-settings, pytest, testcontainers, structlog, orjson, fastavro, prometheus-client, uv, ruff), queried 2026-10-08
 - npm registry (chart.js 4.5.1, echarts 6.1.0), queried 2026-10-08
 - Docker Hub API (apache/kafka, library/rabbitmq, library/python tags), queried 2026-10-08
-- .planning/PROJECT.md
 <!-- GSD:stack-end -->
 
 <!-- GSD:conventions-start source:CONVENTIONS.md -->

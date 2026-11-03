@@ -3,7 +3,8 @@
 檢查 PRD/FRD/SRD/AT 的 ID 定義、REQ->FR->AT 覆蓋、引用存在、Phase 有效與必要欄位。
 追溯矩陣(AT.md 中標題含「追溯矩陣」之後的內容)被排除在定義與覆蓋邏輯之外。
 用法: uv run python scripts/check_spec.py [--root DIR]
-DIR 需含 docs/spec/*.md 與 .planning/ROADMAP.md(預設為本 repo 根目錄)。
+DIR 需含 docs/spec/*.md(預設為本 repo 根目錄)。
+若存在 .planning/ROADMAP.md 則檢查 Phase 有效性,否則略過該項檢查。
 """
 
 import argparse
@@ -112,8 +113,6 @@ def main() -> int:
     phases = set()
     if rm.exists():
         phases = set(re.findall(r"^### Phase (\d+(?:\.\d+)?):", rm.read_text(encoding="utf-8"), re.M))
-    else:
-        problems["(g) missing spec file"].append(str(rm))
 
     defined: dict[str, str] = {}
     fields: dict[str, dict[str, str]] = {}
@@ -150,7 +149,7 @@ def main() -> int:
             ph = f.get("Phase")
             if ph is None:
                 problems["(f) missing field"].append(f"{i}: Phase")
-            elif ph != "deferred" and ph not in phases:
+            elif phases and ph != "deferred" and ph not in phases:
                 problems["(e) invalid Phase"].append(f"{i}: Phase {ph!r} not in ROADMAP")
         if k == "REQ" and f.get("Phase") != "deferred" and i not in satisfied:
             problems["(b) REQ without FR"].append(i)

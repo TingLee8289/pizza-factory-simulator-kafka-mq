@@ -37,11 +37,11 @@ Sketch sessions wrapped: 2026-10-15
 
 ## Theme
 
-The winning theme file is at `sources/themes/default.css` (HUD CSS variables). Rejected themes `night.css` and `pizza.css` stay in `.planning/sketches/themes/`.
+The winning theme file is at `sources/themes/default.css` (HUD CSS variables). Rejected themes (`night.css`, `pizza.css`) are not included in this repo.
 
 ## Source Files
 
-`sources/001-factory-scene-style/index.html` is the complete working prototype (all three variants, fake simulation, camera rig, picking, HUD). It loads `../vendor/three.min.js` (Three.js r150.1 UMD, kept in `.planning/sketches/vendor/`).
+`sources/001-factory-scene-style/index.html` is the complete working prototype (all three variants, fake simulation, camera rig, picking, HUD). It loads `../vendor/three.min.js` (Three.js r150.1 UMD, kept in `sources/vendor/`).
 </findings_index>
 
 <metadata>

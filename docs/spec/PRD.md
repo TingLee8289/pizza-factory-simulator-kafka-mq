@@ -224,7 +224,6 @@ Pizza Factory Simulator
 | 09    | Portfolio Video Showcase | 四支示範影片與 Playwright 錄製工具 | 待開始(0/6) |
 
 
-最新狀態以 `.planning/ROADMAP.md` 為準。
 
 ## 10. 需求目錄 (REQ)
 
@@ -471,7 +470,5 @@ REQ 對應 FR 與驗收案例,請見 FRD.md 與 AT.md 的追溯矩陣。
 - `docs/spec/FRD.md`:功能需求(FR)
 - `docs/spec/SRD.md`:系統設計(SYS)與非功能需求(NFR)
 - `docs/spec/AT.md`:驗收測試與追溯矩陣
-- `.planning/PROJECT.md`、`.planning/REQUIREMENTS.md`:歷史規劃輸入
-- `.planning/ROADMAP.md`:Phase 規劃與最新狀態
 - `docs/architecture.html`、`docs/kafka-architecture.html`、`docs/rabbitmq-architecture.html`:架構圖
 - `CLAUDE.md`:技術棧與限制
